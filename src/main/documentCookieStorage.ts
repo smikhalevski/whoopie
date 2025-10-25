@@ -2,7 +2,9 @@ import { createCookieStorage } from './createCookieStorage.js';
 import { jsonCookieSerializer } from './jsonCookieSerializer.js';
 
 /**
- * Cookie storage that uses {@link document.cookie} to read and write cookies.
+ * Cookie storage that uses {@link document.cookie} to read and write JSON cookies.
+ *
+ * @group Storage
  */
 export const documentCookieStorage = createCookieStorage({
   getCookie() {

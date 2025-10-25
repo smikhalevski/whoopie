@@ -1,6 +1,8 @@
 /**
  * Options of a [`Set-Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie) header
  * or a cookie that can be assigned to {@link document.cookie}.
+ *
+ * @group Utils
  */
 export interface CookieOptions {
   /**
@@ -64,6 +66,9 @@ export interface CookieOptions {
 
 /**
  * Reads and writes cookies.
+ *
+ * @template Cookies Stored cookies.
+ * @group Storage
  */
 export interface CookieStorage<Cookies extends Record<string, any> = Record<string, any>> {
   /**
@@ -119,6 +124,8 @@ export interface CookieStorage<Cookies extends Record<string, any> = Record<stri
 
 /**
  * Parses and serializes values.
+ *
+ * @group Storage
  */
 export interface Serializer<T = any> {
   /**
@@ -138,6 +145,8 @@ export interface Serializer<T = any> {
 
 /**
  * Options of {@link createCookieStorage}.
+ *
+ * @group Storage
  */
 export interface CookieStorageOptions {
   /**

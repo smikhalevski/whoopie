@@ -6,6 +6,7 @@ import { CookieOptions } from './types.js';
  *
  * @param cookie The [`Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie) header value
  * or {@link document.cookie}.
+ * @group Utils
  */
 export function parseCookies(cookie: readonly string[] | string | null | undefined): Record<string, string> {
   if (cookie === '' || cookie === null || cookie === undefined) {
@@ -44,6 +45,7 @@ export function parseCookies(cookie: readonly string[] | string | null | undefin
  *
  * @param cookie The [`Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie) header value
  * or {@link document.cookie}.
+ * @group Utils
  */
 export function getCookieNames(cookie: readonly string[] | string | null | undefined): string[] {
   if (cookie === '' || cookie === null || cookie === undefined) {
@@ -86,6 +88,7 @@ export function getCookieNames(cookie: readonly string[] | string | null | undef
  * or {@link document.cookie}.
  * @param name The name of a cookie to retrieve.
  * @returns A cookie value or `undefined` if there's no cookie with the given name.
+ * @group Utils
  */
 export function getCookieValue(
   cookie: readonly string[] | string | null | undefined,
@@ -151,6 +154,7 @@ export function getCookieValue(
  * Stringifies cookie and corresponding options.
  *
  * @returns [`Set-Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie) header value.
+ * @group Utils
  */
 export function stringifyCookie(name: string, value: string, options?: CookieOptions): string {
   let cookie = encodeCookieComponent(name) + '=' + encodeCookieComponent(value);

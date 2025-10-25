@@ -3,6 +3,10 @@ import { CookieStorage, CookieStorageOptions } from './types.js';
 
 /**
  * Creates a new cookie storage that uses getter and setter to access cookies.
+ *
+ * @param options Storage options.
+ * @template Cookies Stored cookies.
+ * @group Storage
  */
 export function createCookieStorage<Cookies extends Record<string, any>>(
   options: CookieStorageOptions

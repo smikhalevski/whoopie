@@ -2,6 +2,8 @@ import { Serializer } from './types.js';
 
 /**
  * An adapter that serializes cookie values with {@link JSON}.
+ *
+ * @group Storage
  */
 export const jsonCookieSerializer: Serializer = {
   parse(text) {
