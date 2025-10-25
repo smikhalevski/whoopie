@@ -1,8 +1,7 @@
 import { CookieOptions } from './types.js';
 
 /**
- * Parses [`Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie) header value as
- * a name-value record.
+ * Parses cookie string as a name-value record.
  *
  * @param cookie The [`Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie) header value
  * or {@link document.cookie}.
@@ -14,7 +13,11 @@ export function parseCookies(cookie: readonly string[] | string | null | undefin
   }
 
   if (Array.isArray(cookie)) {
-    cookie = cookie.join(';');
+    if (cookie.length === 0) {
+      return {};
+    }
+
+    cookie = cookie.length === 1 ? cookie[0] : cookie.join(';');
   }
 
   const record: Record<string, string> = {};
@@ -53,7 +56,11 @@ export function getCookieNames(cookie: readonly string[] | string | null | undef
   }
 
   if (Array.isArray(cookie)) {
-    cookie = cookie.join(';');
+    if (cookie.length === 0) {
+      return [];
+    }
+
+    cookie = cookie.length === 1 ? cookie[0] : cookie.join(';');
   }
 
   const names = [];
@@ -99,7 +106,11 @@ export function getCookieValue(
   }
 
   if (Array.isArray(cookie)) {
-    cookie = cookie.join(';');
+    if (cookie.length === 0) {
+      return;
+    }
+
+    cookie = cookie.length === 1 ? cookie[0] : cookie.join(';');
   }
 
   name = encodeCookieComponent(name);
@@ -111,14 +122,14 @@ export function getCookieValue(
       endIndex = cookie.length;
     }
 
-    let valueStartIndex = cookie.indexOf('=', startIndex);
+    const valueIndex = cookie.indexOf('=', startIndex);
 
-    if (valueStartIndex === -1 || valueStartIndex > endIndex) {
+    if (valueIndex === -1 || valueIndex > endIndex) {
       continue;
     }
 
     // Compare the current cookie name and the requested name
-    for (let i = startIndex, j = 0; i < valueStartIndex; ++i) {
+    for (let i = startIndex, j = 0; i < valueIndex; ++i) {
       const charCode = cookie.charCodeAt(i);
 
       if ((j === 0 || j === name.length) && isSpaceChar(charCode)) {
@@ -130,23 +141,7 @@ export function getCookieValue(
       }
     }
 
-    let valueEndIndex = ++valueStartIndex;
-
-    // Skip spaces at value start and at value end
-    for (let i = valueStartIndex; i < endIndex; ++i) {
-      const charCode = cookie.charCodeAt(i);
-
-      if (!isSpaceChar(charCode)) {
-        valueEndIndex = i + 1;
-        continue;
-      }
-
-      if (valueStartIndex === valueEndIndex) {
-        valueEndIndex = ++valueStartIndex;
-      }
-    }
-
-    return decodeCookieComponent(cookie.substring(valueStartIndex, valueEndIndex));
+    return decodeCookieComponent(cookie.substring(valueIndex + 1, endIndex).trim());
   }
 }
 
@@ -209,9 +204,9 @@ function isSpaceChar(charCode: number): boolean {
 }
 
 function encodeCookieComponent(str: string): string {
-  return str.replace(/;/g, '%3B');
+  return str.replace(/[;%]/g, encodeURIComponent);
 }
 
 function decodeCookieComponent(str: string): string {
-  return str.replace(/%3B/g, ';');
+  return str.replace(/%3B|%25/g, decodeURIComponent);
 }

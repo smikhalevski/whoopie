@@ -60,8 +60,8 @@ export function createCookieStorage(options: CookieStorageOptions): CookieStorag
       }
     },
 
-    *[Symbol.iterator]() {
-      return Object.entries(getAll());
+    [Symbol.iterator]() {
+      return Object.entries(getAll()).values();
     },
   };
 }

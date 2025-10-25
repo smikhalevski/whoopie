@@ -1,14 +1,14 @@
 {
   "name": "whoopie",
   "version": "0.0.1",
-  "description": "The super-fast cookie parser and storage.",
+  "description": "Super-fast cookie parsing and storage — built to work seamlessly on both server and client.",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
     "build": "tsc --project tsconfig.build.json && cp package.json README.md LICENSE.txt lib/ && cd lib && npm pkg delete scripts devDependencies",
     "clean": "rimraf lib docs coverage",
-    "test": "vitest run",
+    "test": "TZ=UTC vitest run",
     "perf": "toofast",
     "docs": "typedoc"
   },
@@ -28,12 +28,13 @@
   },
   "homepage": "https://github.com/smikhalevski/whoopie#readme",
   "devDependencies": {
+    "js-cookie": "^3.0.5",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "toofast": "^3.0.3",
     "typedoc": "^0.28.14",
     "typedoc-plugin-mdn-links": "^5.0.10",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.3"
+    "vitest": "^3.2.4"
   }
 }
