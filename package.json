@@ -1,7 +1,7 @@
 {
   "name": "whoopie",
   "version": "0.0.1",
-  "description": "Super-fast cookie parsing and storage — built to work seamlessly on both server and client.",
+  "description": "Super-fast cookie parser and storage that works on both server and client.",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
