@@ -77,6 +77,68 @@ describe('set', () => {
   });
 });
 
+describe('getSigned', () => {
+  test('reads signed cookie value without a serializer', async () => {
+    getCookieMock.mockReturnValue('aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+
+    await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe('bbb');
+
+    expect(getCookieMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('returns undefined if signature is invalid', async () => {
+    getCookieMock.mockReturnValue('aaa=bbb.XXXXXG3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+
+    await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe(undefined);
+  });
+
+  test('reads signed cookie value with a serializer', async () => {
+    cookieStorage = createCookieStorage({
+      getCookie: getCookieMock,
+      setCookie: setCookieMock,
+      serializer: serializerMock,
+    });
+
+    serializerMock.parse.mockReturnValue('zzz');
+    getCookieMock.mockReturnValue('aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+
+    await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe('zzz');
+
+    expect(getCookieMock).toHaveBeenCalledTimes(1);
+    expect(serializerMock.parse).toHaveBeenCalledTimes(1);
+    expect(serializerMock.parse).toHaveBeenNthCalledWith(1, 'bbb');
+  });
+});
+
+describe('setSigned', () => {
+  test('writes signed cookie value without a serializer', async () => {
+    await cookieStorage.setSigned('aaa', 'bbb', 'xxx', { isHttpOnly: true });
+
+    expect(setCookieMock).toHaveBeenCalledTimes(1);
+    expect(setCookieMock).toHaveBeenNthCalledWith(1, 'aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=; HttpOnly');
+  });
+
+  test('writes cookie value with a serializer', async () => {
+    cookieStorage = createCookieStorage({
+      getCookie: getCookieMock,
+      setCookie: setCookieMock,
+      serializer: serializerMock,
+    });
+
+    serializerMock.stringify.mockReturnValue('"xxx"');
+
+    await cookieStorage.setSigned('aaa', 'bbb', 'zzz', { isHttpOnly: true });
+
+    expect(setCookieMock).toHaveBeenCalledTimes(1);
+    expect(setCookieMock).toHaveBeenNthCalledWith(
+      1,
+      'aaa="xxx".aUUpnbB5nQeYMbPFBE1Ri1YTxv7n7cHlXYaeCZA9u4M=; HttpOnly'
+    );
+    expect(serializerMock.stringify).toHaveBeenCalledTimes(1);
+    expect(serializerMock.stringify).toHaveBeenNthCalledWith(1, 'bbb');
+  });
+});
+
 describe('getAll', () => {
   test('returns all cookies as a record', () => {
     getCookieMock.mockReturnValue('aaa=bbb;ccc=ddd');
