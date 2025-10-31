@@ -148,6 +148,9 @@ export function getCookieValue(
 /**
  * Stringifies cookie and corresponding options.
  *
+ * @param name The name of a cookie.
+ * @param value The cookie value
+ * @param options Additional cookie options.
  * @returns [`Set-Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie) header value.
  * @group Utils
  */
@@ -199,6 +202,62 @@ export function stringifyCookie(name: string, value: string, options?: CookieOpt
   return cookie;
 }
 
+/**
+ * Returns the value of a cookie that was signed with a secret.
+ *
+ * @param cookie The [`Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie) header value
+ * or {@link document.cookie}.
+ * @param name The name of a cookie to retrieve.
+ * @param secret The signing secret key.
+ * @returns The cookie value, or `undefined` if there's no cookie with the given name or signature verification has failed.
+ * @group Utils
+ */
+export async function getSignedCookieValue(
+  cookie: readonly string[] | string | null | undefined,
+  name: string,
+  secret: BufferSource | string
+): Promise<string | undefined> {
+  const signedValue = getCookieValue(cookie, name);
+
+  if (signedValue === undefined) {
+    return;
+  }
+
+  const signatureIndex = signedValue.lastIndexOf(SIGNATURE_SEPARATOR);
+
+  if (signatureIndex === -1) {
+    return;
+  }
+
+  const value = signedValue.substring(0, signatureIndex);
+  const signatureBase64 = signedValue.substring(signatureIndex + 1);
+
+  if (await verify(value, secret, signatureBase64)) {
+    return value;
+  }
+}
+
+/**
+ * Signs and stringifies cookie and corresponding options.
+ *
+ * @param name The name of a cookie.
+ * @param value The cookie value
+ * @param secret The signing secret key.
+ * @param options Additional cookie options.
+ * @returns [`Set-Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie) header value.
+ * @group Utils
+ */
+export async function stringifySignedCookie(
+  name: string,
+  value: string,
+  secret: BufferSource | string,
+  options?: CookieOptions
+): Promise<string> {
+  const signatureBase64 = await sign(value, secret);
+
+  return stringifyCookie(name, value + SIGNATURE_SEPARATOR + signatureBase64, options);
+}
+
 function isSpaceChar(charCode: number): boolean {
   return charCode == /* \s */ 32 || charCode === /* \n */ 10 || charCode === /* \t */ 9 || charCode === /* \r */ 13;
 }
@@ -209,4 +268,43 @@ function encodeCookieComponent(str: string): string {
 
 function decodeCookieComponent(str: string): string {
   return str.replace(/%3B|%25/g, decodeURIComponent);
+}
+
+const SIGNATURE_SEPARATOR = '.';
+const ALGORITHM = 'HMAC';
+
+const textEncoder = new TextEncoder();
+
+function toCryptoKey(secret: BufferSource | string): Promise<CryptoKey> {
+  const keyData = typeof secret === 'string' ? textEncoder.encode(secret) : secret;
+
+  return crypto.subtle.importKey('raw', keyData, { name: ALGORITHM, hash: 'SHA-256' }, false, ['sign', 'verify']);
+}
+
+/**
+ * Returns the Base64 signature of the value.
+ */
+async function sign(value: string, secret: BufferSource | string): Promise<string> {
+  const signature = await crypto.subtle.sign(ALGORITHM, await toCryptoKey(secret), textEncoder.encode(value));
+
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
+}
+
+/**
+ * Verifies that the signature matches the value and the secret.
+ */
+async function verify(value: string, secret: BufferSource | string, signatureBase64: string): Promise<boolean> {
+  try {
+    const signature = atob(signatureBase64);
+
+    const signatureBytes = new Uint8Array(signature.length);
+
+    for (let i = 0; i < signature.length; ++i) {
+      signatureBytes[i] = signature.charCodeAt(i);
+    }
+
+    return crypto.subtle.verify(ALGORITHM, await toCryptoKey(secret), signatureBytes, textEncoder.encode(value));
+  } catch {
+    return false;
+  }
 }

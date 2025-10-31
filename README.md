@@ -85,14 +85,14 @@ You can create server-side cookie storage that reads cookies from a request and 
 ```ts
 import { createCookieStorage, jsonCookieSerializer } from 'whoopie';
 
-function createServerCookieStorage(request: Request, response: Response): CookieStorage {
+function createServerCookieStorage(requestHeaders: Headers, responseHeaders: Headers): CookieStorage {
   return createCookieStorage({
     getCookie() {
-      return request.headers.get('Cookie');
+      return requestHeaders.get('Cookie');
     },
 
     setCookie(cookie) {
-      response.headers.set('Set-Cookie', cookie);
+      responseHeaders.set('Set-Cookie', cookie);
     },
 
     serializer: jsonCookieSerializer,
@@ -103,16 +103,41 @@ function createServerCookieStorage(request: Request, response: Response): Cookie
 Be sure to create a new cookie store for each request.
 
 ```ts
-export function handleRequest(request: Request, response: Response) {
-  const myStorage = createServerCookieStorage(request, response);
+export function handleRequest(request: Request): Response {
+  const responseHeaders = new Headers();
+
+  const myStorage = createServerCookieStorage(request.headers, responseHeaders);
 
   myStorage.set('hello', 'world');
 
   myStorage.get('hello');
+
+  return Response.json({}, { headers: responseHeaders });
 }
 ```
 
-# Utils
+# Signed cookies
+
+Signed cookies are needed to ensure integrity and authenticity of data stored in the browser. Ordinary cookies are
+stored and sent by the browser, but the user can modify them using developer tools.
+
+Signed cookies guarantee that the cookies value wasn't forged by adding a signature to the cookie value and verifying
+this signature when cookie is read:
+
+```ts
+import { documentCookieStorage } from 'whoopie';
+
+const SECRET_KEY = 'my_secret_key';
+
+documentCookieStorage.setSigned('hello', 'world', SECRET_KEY);
+
+documentCookieStorage.getSigned('hello', SECRET_KEY);
+// ⮕ 'world'
+```
+
+Make sure that secret key cannot be accessed by the user.
+
+# Utilities
 
 Whoopie exports a set of functional utilities that streamline working with cookies without the need to create a storage.
 
