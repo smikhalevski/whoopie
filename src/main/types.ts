@@ -98,8 +98,8 @@ export interface CookieStorage<Cookies extends Record<string, any> = Record<stri
   set<Name extends keyof Cookies>(name: Name, value: Cookies[Name], options?: CookieOptions): void;
 
   /**
-   * Returns a cookie value that was signed by a {@link CookieStorageOptions.signer signer}, or `undefined` if there's
-   * no cookie with the given name, or it's signature cannot be verified.
+   * Returns a value of a cookie value that was signed, or `undefined` if there's no cookie with the given name,
+   * or it's signature cannot be verified.
    *
    * @param name The cookie name.
    * @param secret The signing secret key.
@@ -108,7 +108,7 @@ export interface CookieStorage<Cookies extends Record<string, any> = Record<stri
   getSigned<Name extends keyof Cookies>(name: Name, secret: BufferSource | string): Promise<Cookies[Name] | undefined>;
 
   /**
-   * Sets a cookie value that is signed by a {@link CookieStorageOptions.signer signer}.
+   * Sets a signed cookie value.
    *
    * @param name The cookie name.
    * @param value The cookie value.
