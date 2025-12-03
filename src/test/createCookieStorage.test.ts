@@ -79,7 +79,7 @@ describe('set', () => {
 
 describe('getSigned', () => {
   test('reads signed cookie value without a serializer', async () => {
-    getCookieMock.mockReturnValue('aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+    getCookieMock.mockReturnValue('aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=');
 
     await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe('bbb');
 
@@ -87,7 +87,7 @@ describe('getSigned', () => {
   });
 
   test('returns undefined if signature is invalid', async () => {
-    getCookieMock.mockReturnValue('aaa=bbb.XXXXXG3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+    getCookieMock.mockReturnValue('aaa=bbb.XXXXXIfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=');
 
     await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe(undefined);
   });
@@ -100,7 +100,7 @@ describe('getSigned', () => {
     });
 
     serializerMock.parse.mockReturnValue('zzz');
-    getCookieMock.mockReturnValue('aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=');
+    getCookieMock.mockReturnValue('aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=');
 
     await expect(cookieStorage.getSigned('aaa', 'xxx')).resolves.toBe('zzz');
 
@@ -115,7 +115,7 @@ describe('setSigned', () => {
     await cookieStorage.setSigned('aaa', 'bbb', 'xxx', { isHttpOnly: true });
 
     expect(setCookieMock).toHaveBeenCalledTimes(1);
-    expect(setCookieMock).toHaveBeenNthCalledWith(1, 'aaa=bbb.WMi69G3kT+oC9YzBibG40w2CjPA0JXk2SlP1futbf1s=; HttpOnly');
+    expect(setCookieMock).toHaveBeenNthCalledWith(1, 'aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=; HttpOnly');
   });
 
   test('writes cookie value with a serializer', async () => {
@@ -132,7 +132,7 @@ describe('setSigned', () => {
     expect(setCookieMock).toHaveBeenCalledTimes(1);
     expect(setCookieMock).toHaveBeenNthCalledWith(
       1,
-      'aaa="xxx".aUUpnbB5nQeYMbPFBE1Ri1YTxv7n7cHlXYaeCZA9u4M=; HttpOnly'
+      'aaa="xxx".zg3prNA/sDFgcCepU74uEuHNnKEsYkqpb1jW10nWOXo=; HttpOnly'
     );
     expect(serializerMock.stringify).toHaveBeenCalledTimes(1);
     expect(serializerMock.stringify).toHaveBeenNthCalledWith(1, 'bbb');

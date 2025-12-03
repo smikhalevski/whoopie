@@ -232,7 +232,7 @@ export async function getSignedCookieValue(
   const value = signedValue.substring(0, signatureIndex);
   const signatureBase64 = signedValue.substring(signatureIndex + 1);
 
-  if (await verify(value, secret, signatureBase64)) {
+  if (await verify(name + value, secret, signatureBase64)) {
     return value;
   }
 }
@@ -253,7 +253,7 @@ export async function stringifySignedCookie(
   secret: BufferSource | string,
   options?: CookieOptions
 ): Promise<string> {
-  const signatureBase64 = await sign(value, secret);
+  const signatureBase64 = await sign(name + value, secret);
 
   return stringifyCookie(name, value + SIGNATURE_SEPARATOR + signatureBase64, options);
 }

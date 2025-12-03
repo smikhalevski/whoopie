@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { getCookieNames, getCookieValue, parseCookies, stringifyCookie } from '../main/utils.js';
+import {
+  getCookieNames,
+  getCookieValue,
+  getSignedCookieValue,
+  parseCookies,
+  stringifyCookie,
+  stringifySignedCookie,
+} from '../main/utils.js';
 
 describe('parseCookies', () => {
   test('returns cookies as a record', () => {
@@ -73,5 +80,28 @@ describe('stringifyCookie', () => {
     expect(stringifyCookie('aaa', 'bbb', { expiresAt: new Date('hello') })).toBe('aaa=bbb');
     expect(stringifyCookie('aaa', 'bbb', { maxAge: 'hello' as unknown as number })).toBe('aaa=bbb');
     expect(stringifyCookie('aaa', 'bbb', { maxAge: 0 })).toBe('aaa=bbb; Max-Age=0');
+  });
+});
+
+describe('stringifySignedCookie', () => {
+  test('returns signed cookie value', async () => {
+    await expect(stringifySignedCookie('aaa', 'bbb', 'xxx')).resolves.toBe(
+      'aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y='
+    );
+    await expect(stringifySignedCookie('aaa', 'bbb', 'xxx', { isHttpOnly: true })).resolves.toBe(
+      'aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=; HttpOnly'
+    );
+  });
+});
+
+describe('getSignedCookieValue', () => {
+  test('returns signed cookie value', async () => {
+    await expect(
+      getSignedCookieValue('aaa=bbb.IfzbxsCugQHXHJu227iibTSkBdQqQoSmF+KykMMFa8Y=', 'aaa', 'xxx')
+    ).resolves.toBe('bbb');
+
+    await expect(getSignedCookieValue(await stringifySignedCookie('aaa', 'bbb', 'xxx'), 'aaa', 'xxx')).resolves.toBe(
+      'bbb'
+    );
   });
 });
